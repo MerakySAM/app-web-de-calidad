@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Portal de Formatos Corporativos</title>
+    <meta name="description" content="Portal centralizado de formatos corporativos bajo norma ISO 13485." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+
+    <!-- ===== HEADER ===== -->
+    <header class="header">
+      <div class="header-inner">
+        <div class="header-brand">
+          <img src="logo.png.jpg" alt="Logo Meraky" class="logo" />
+          <div class="header-text">
+            <h1>Portal de Formatos</h1>
+            <p>Sistema de Gestión de Calidad &middot; ISO 13485</p>
+          </div>
+        </div>
+        <button id="adminToggle" class="btn-admin" aria-label="Acceder al modo administrador">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <span id="adminLabel">Modo admin</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ===== MAIN ===== -->
+    <main class="container">
+
+      <!-- Barra de búsqueda -->
+      <section class="toolbar">
+        <div class="search-wrap">
+          <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input id="searchInput" type="search" placeholder="Buscar por nombre, área o palabra clave…" autocomplete="off" />
+        </div>
+      </section>
+
+      <!-- Filtro por áreas -->
+      <nav id="areasNav" class="areas" aria-label="Filtrar por área"></nav>
+
+      <!-- Contador de resultados -->
+      <p id="resultsCount" class="results-count"></p>
+
+      <!-- Tarjetas de formatos -->
+      <section id="results" class="results" aria-live="polite"></section>
+
+      <!-- Panel de administración -->
+      <section id="adminPanel" class="admin-panel hidden" aria-live="polite">
+        <div class="admin-panel-header">
+          <div>
+            <h2>Panel de administración</h2>
+            <p>Agrega, edita o elimina formatos corporativos.</p>
+          </div>
+          <button id="newFormatBtn" class="btn-secondary" type="button">+ Nuevo formato</button>
+        </div>
+        <form id="formatForm" class="format-form hidden">
+          <h3 id="formTitle">Nuevo formato</h3>
+          <div class="form-grid">
+            <div class="field">
+              <label for="f-name">Nombre del formato *</label>
+              <input id="f-name" required placeholder="Ej: Registro de inspección de calidad" />
+            </div>
+            <div class="field">
+              <label for="f-area">Área *</label>
+              <input id="f-area" required placeholder="Ej: Calidad e innovación" />
+            </div>
+            <div class="field">
+              <label for="f-version">Versión</label>
+              <input id="f-version" placeholder="Ej: v1.0" />
+            </div>
+            <div class="field">
+              <label for="f-status">Estado</label>
+              <select id="f-status">
+                <option value="Vigente">Vigente</option>
+                <option value="En revisión">En revisión</option>
+                <option value="Obsoleto">Obsoleto</option>
+              </select>
+            </div>
+            <div class="field full">
+              <label for="f-description">Descripción</label>
+              <textarea id="f-description" rows="2" placeholder="Descripción breve del formato"></textarea>
+            </div>
+            <div class="field full">
+              <label for="f-keywords">Palabras clave <span class="hint">(separadas por coma)</span></label>
+              <input id="f-keywords" placeholder="Ej: inspección, calidad, checklist" />
+            </div>
+            <div class="field full">
+              <label for="f-url">URL del formato *</label>
+              <input id="f-url" required type="url" placeholder="https://tu-app-web.com/formato" />
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="button" id="cancelFormBtn" class="btn-ghost">Cancelar</button>
+            <button type="submit" id="submitBtn" class="btn-primary">Guardar formato</button>
+          </div>
+        </form>
+      </section>
+
+    </main>
+
+    <!-- ===== TEMPLATE DE TARJETA ===== -->
+    <template id="cardTemplate">
+      <article class="card">
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="badge-area"></span>
+            <span class="badge-status"></span>
+            <span class="badge-version"></span>
+          </div>
+          <h3 class="card-title"></h3>
+          <p class="card-description"></p>
+          <p class="card-keywords"></p>
+        </div>
+        <div class="card-actions">
+          <a class="btn-open" target="_blank" rel="noopener noreferrer">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Abrir formato
+          </a>
+          <button class="btn-edit hidden" type="button">Editar</button>
+          <button class="btn-delete hidden" type="button">Eliminar</button>
+        </div>
+      </article>
+    </template>
+
+    <!-- ===== MODAL LOGIN ADMIN ===== -->
+    <div id="loginModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal">
+        <h2 id="modal-title">Acceso administrador</h2>
+        <p>Ingresa la clave para continuar.</p>
+        <div class="field">
+          <label for="adminPasswordInput">Contraseña</label>
+          <input id="adminPasswordInput" type="password" placeholder="••••••••" autocomplete="current-password" />
+        </div>
+        <p id="loginError" class="login-error hidden">Clave incorrecta. Inténtalo de nuevo.</p>
+        <div class="form-actions">
+          <button id="cancelLoginBtn" class="btn-ghost" type="button">Cancelar</button>
+          <button id="confirmLoginBtn" class="btn-primary" type="button">Ingresar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== MODAL CONFIRMAR ELIMINACIÓN ===== -->
+    <div id="deleteModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
+      <div class="modal">
+        <h2 id="delete-modal-title">Confirmar eliminación</h2>
+        <p id="deleteModalMsg">¿Estás seguro de que deseas eliminar este formato? Esta acción no se puede deshacer.</p>
+        <div class="form-actions">
+          <button id="cancelDeleteBtn" class="btn-ghost" type="button">Cancelar</button>
+          <button id="confirmDeleteBtn" class="btn-danger" type="button">Eliminar</button>
+        </div>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <p>Portal de Formatos Corporativos &mdash; Sistema de Gestión de Calidad ISO 13485</p>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
